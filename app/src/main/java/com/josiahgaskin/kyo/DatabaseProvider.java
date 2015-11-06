@@ -39,8 +39,9 @@ public class DatabaseProvider extends SQLiteOpenHelper {
                 ")");
         db.execSQL("CREATE TABLE Counters (" +
                 "_id integer primary key," +
-                "dt datetime default current_timestamp," +
-                "value integer" +
+                "name text not null," +
+                "value integer," +
+                "dt datetime default current_timestamp" +
                 ")");
     }
 

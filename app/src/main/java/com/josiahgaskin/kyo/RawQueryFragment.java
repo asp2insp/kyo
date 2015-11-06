@@ -6,12 +6,20 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,7 +35,7 @@ public class RawQueryFragment extends Fragment {
      * fragment.
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
-    private ArrayAdapter<List<String>> mAdapter;
+    private BaseAdapter mAdapter;
     private ArrayList<List<String>> mQueryResults = new ArrayList<>();
     private EditText mQueryText;
 
@@ -57,6 +65,10 @@ public class RawQueryFragment extends Fragment {
                 runQuery();
             }
         });
+        ListView listView = (ListView) rootView.findViewById(R.id.listView);
+        listView.setAdapter(mAdapter);
+        TextView empty = (TextView) inflater.inflate(R.layout.empty, null);
+        listView.setEmptyView(empty);
         return rootView;
     }
 
@@ -73,6 +85,11 @@ public class RawQueryFragment extends Fragment {
                 Cursor c = db.rawQuery(query, new String[]{});
                 if (c != null) {
                     int cols = c.getColumnCount();
+                    List<String> header = new ArrayList<>(cols);
+                    for (int i = 0; i < cols; i++ ) {
+                        header.add(c.getColumnName(i));
+                    }
+                    mQueryResults.add(header);
                     if (c.moveToFirst()) {
                         do {
                             List<String> row = new ArrayList<>(cols);
@@ -92,9 +109,40 @@ public class RawQueryFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(final Activity activity) {
         super.onAttach(activity);
-        mAdapter = new ArrayAdapter<>(activity, R.layout.query_result_row, mQueryResults);
+        mAdapter = new BaseAdapter() {
+            @Override
+            public int getCount() {
+                return mQueryResults.size();
+            }
+
+            @Override
+            public Object getItem(int position) {
+                return mQueryResults.get(position);
+            }
+
+            @Override
+            public long getItemId(int position) {
+                return position;
+            }
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                if (convertView == null) {
+                    convertView = activity.getLayoutInflater().inflate(R.layout.query_result_row, null);
+                }
+                LinearLayout row = (LinearLayout) convertView.findViewById(R.id.row);
+                row.removeAllViews();
+                List<String> rowData = mQueryResults.get(position);
+                for (String c : rowData) {
+                    TextView tv = (TextView) activity.getLayoutInflater().inflate(R.layout.col, null);
+                    tv.setText(c);
+                    row.addView(tv);
+                }
+                return convertView;
+            }
+        };
         ((Home) activity).onSectionAttached(
                 getArguments().getInt(ARG_SECTION_NUMBER));
     }
