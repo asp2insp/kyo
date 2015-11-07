@@ -23,7 +23,10 @@ public class Home extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        // Init shared refs
         DatabaseProvider.init(getApplicationContext());
+        History.init(getApplicationContext());
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);

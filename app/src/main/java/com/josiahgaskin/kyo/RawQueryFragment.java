@@ -6,23 +6,17 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
-import android.widget.EditText;
-import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,8 +30,10 @@ public class RawQueryFragment extends Fragment {
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
     private BaseAdapter mAdapter;
+    private ArrayAdapter<String> mAutocompleteAdapter;
+    private ArrayList<String> mAutocompletes = new ArrayList<>();
     private ArrayList<List<String>> mQueryResults = new ArrayList<>();
-    private EditText mQueryText;
+    private AutoCompleteTextView mQueryText;
 
     public RawQueryFragment() {
     }
@@ -58,7 +54,8 @@ public class RawQueryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.raw_query, container, false);
-        mQueryText = (EditText) rootView.findViewById(R.id.editText);
+        mQueryText = (AutoCompleteTextView) rootView.findViewById(R.id.editText);
+        mQueryText.setAdapter(mAutocompleteAdapter);
         rootView.findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -81,6 +78,8 @@ public class RawQueryFragment extends Fragment {
                 // Try compiling to check the query
                 db.compileStatement(query);
 
+                // If it's valid, save it
+                updateAutocomplete(query);
                 // Actually execute
                 Cursor c = db.rawQuery(query, new String[]{});
                 if (c != null) {
@@ -106,6 +105,12 @@ public class RawQueryFragment extends Fragment {
             }
             mAdapter.notifyDataSetChanged();
         }
+    }
+
+    private void updateAutocomplete(String query) {
+        History.add(query);
+        mAutocompletes.add(query);
+        mAutocompleteAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -143,6 +148,10 @@ public class RawQueryFragment extends Fragment {
                 return convertView;
             }
         };
+        mAutocompletes.clear();
+        mAutocompletes.addAll(History.getAll());
+        mAutocompleteAdapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, mAutocompletes);
+
         ((Home) activity).onSectionAttached(
                 getArguments().getInt(ARG_SECTION_NUMBER));
     }

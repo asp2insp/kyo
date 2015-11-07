@@ -16,10 +16,9 @@
         android:layout_gravity="center_horizontal"
         android:layout_weight=".2">
 
-        <EditText
+        <AutoCompleteTextView
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:inputType="textMultiLine"
+            android:layout_height="wrap_content"
             android:ems="10"
             android:id="@+id/editText"
             android:layout_weight="1" />
