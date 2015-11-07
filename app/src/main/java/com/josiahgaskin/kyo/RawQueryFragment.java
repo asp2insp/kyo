@@ -1,11 +1,11 @@
 package com.josiahgaskin.kyo;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +28,6 @@ public class RawQueryFragment extends Fragment {
      * The fragment argument representing the section number for this
      * fragment.
      */
-    private static final String ARG_SECTION_NUMBER = "section_number";
     private BaseAdapter mAdapter;
     private ArrayAdapter<String> mAutocompleteAdapter;
     private ArrayList<String> mAutocompletes = new ArrayList<>();
@@ -42,10 +41,9 @@ public class RawQueryFragment extends Fragment {
      * Returns a new instance of this fragment for the given section
      * number.
      */
-    public static RawQueryFragment newInstance(int sectionNumber) {
+    public static RawQueryFragment newInstance() {
         RawQueryFragment fragment = new RawQueryFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_SECTION_NUMBER, sectionNumber);
         fragment.setArguments(args);
         return fragment;
     }
@@ -97,6 +95,8 @@ public class RawQueryFragment extends Fragment {
                             }
                             mQueryResults.add(row);
                         } while (c.moveToNext());
+                    } else {
+                        mQueryResults.add(Collections.singletonList("Query Successful, 0 Rows Returned"));
                     }
                     c.close();
                 }
@@ -152,7 +152,6 @@ public class RawQueryFragment extends Fragment {
         mAutocompletes.addAll(History.getAll());
         mAutocompleteAdapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, mAutocompletes);
 
-        ((Home) activity).onSectionAttached(
-                getArguments().getInt(ARG_SECTION_NUMBER));
+        ((Home) activity).onSectionAttached(getString(R.string.title_sql));
     }
 }

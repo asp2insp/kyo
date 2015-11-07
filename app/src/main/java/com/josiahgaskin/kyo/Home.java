@@ -1,10 +1,13 @@
 package com.josiahgaskin.kyo;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
-import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+
+import java.util.ArrayList;
 
 public class Home extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -19,9 +22,17 @@ public class Home extends ActionBarActivity
      */
     private CharSequence mTitle;
 
+    private ArrayList<Fragment> subscreens = new ArrayList<>(3);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Set up fragments
+        subscreens.add(RawQueryFragment.newInstance());
+        subscreens.add(CountersFragment.newInstance());
+        subscreens.add(IdeasFragment.newInstance());
+
+
         setContentView(R.layout.activity_home);
 
         // Init shared refs
@@ -41,24 +52,15 @@ public class Home extends ActionBarActivity
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
-                .replace(R.id.container, RawQueryFragment.newInstance(position + 1))
+                .replace(R.id.container, subscreens.get(position))
                 .commit();
     }
 
-    public void onSectionAttached(int number) {
-        switch (number) {
-            case 1:
-                mTitle = getString(R.string.title_section1);
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
-                break;
-        }
+    public void onSectionAttached(String title) {
+        mTitle = title;
+        restoreActionBar();
     }
 
     public void restoreActionBar() {

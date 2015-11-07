@@ -36,12 +36,19 @@ public class DatabaseProvider extends SQLiteOpenHelper {
                 "_id integer primary key," +
                 "name text not null," +
                 "type text not null" +
+                "value integer not null default 0," +
                 ")");
         db.execSQL("CREATE TABLE Counters (" +
                 "_id integer primary key," +
                 "name text not null," +
                 "value integer," +
                 "dt datetime default current_timestamp" +
+                ")");
+        db.execSQL("CREATE TABLE Ideas (" +
+                "_id integer primary key," +
+                "value text not null," +
+                "dt datetime default current_timestamp" +
+                "status text not null default \"brainstorm\"" +
                 ")");
     }
 
